@@ -150,6 +150,9 @@ def main():
         # Make the connection
         s.connect((HOST, PORT))
         
+        print(f'\n> Connection established to: {HOST}:{PORT}')
+        print(f'> Executing update commands...\n')
+
         # Execute the commands and read back data
         for command in commands:
             print(f'>> {command}', end='  ')
@@ -161,8 +164,8 @@ def main():
             
             time.sleep(0.5)
         
-        # Do a final EEPROMRD before exiting
-        print('Commands done. EEPROM reads as:')
+        # Do a final read of the EEPROM before exiting
+        print('\nCommands are done. EEPROM reads as:')
         out = write_command_and_read_output(s, "eepromrd\r\n")
         print(out)
 
