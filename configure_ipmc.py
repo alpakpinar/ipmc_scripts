@@ -37,6 +37,10 @@ CONFIG_TO_COMMANDS = {
     },
 }
 
+# The field names to check to ensure that the command worked
+FIELDS_TO_CHECK = {
+    'idwr' : 'hw',
+}
 
 def parse_cli():
     parser = argparse.ArgumentParser()
@@ -146,17 +150,28 @@ def main():
     
     commands = get_commands(config)
 
+    # Timeout value (s) for socket connection
+    timeout = 5
+
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         # Make the connection
         s.connect((HOST, PORT))
+        s.settimeout(timeout)
         
         print(f'\n> Connection established to: {HOST}:{PORT}')
+        print(f'> Timeout set to: {timeout} s')
         print(f'> Executing update commands...\n')
 
         # Execute the commands and read back data
         for command in commands:
             print(f'>> {command}', end='  ')
-            output = write_command_and_read_output(s, command)
+            try:
+                output = write_command_and_read_output(s, command)
+            except socket.timeout:
+                print('-> Command timed out, skipping.')
+                continue
+            
+            # Validate the command output
             if validate_command_output(output, config):
                 print('-> OK')
             else:
