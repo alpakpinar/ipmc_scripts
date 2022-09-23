@@ -36,7 +36,7 @@ CONFIG_TO_COMMANDS = {
         'eth1' : 'ethmacwr 1',
     },
 }
-g
+
 
 def parse_cli():
     parser = argparse.ArgumentParser()
