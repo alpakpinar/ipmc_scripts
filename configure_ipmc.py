@@ -75,7 +75,7 @@ def get_commands(config):
             # Read the value from the config and figure out the command
             # Some minor pre-processing for MAC address values 
             value = str(config[key][subkey]).replace(':', ' ')
-            commands.append(f"{commandbase} {value}")
+            commands.append(f"{commandbase} {value}\r\n")
 
     # Do a final eepromrd
     commands.append("eepromrd\r\n")
@@ -145,15 +145,6 @@ def main():
         # Make the connection
         s.connect((HOST, PORT))
         
-        commands = [
-             "info\r\n",
-             "eepromrd\r\n",
-             "verwr 1\r\n",
-             "idwr 207\r\n",
-             "sdsel 0\r\n",
-             "bootloader\r\n",
-             "ethmacwr 1 00 50 51 FF 10 CF\r\n",
-        ]
         for command in commands:
             print(command)
             output = write_command_and_read_output(s, command)
