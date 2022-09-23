@@ -36,7 +36,7 @@ CONFIG_TO_COMMANDS = {
         'eth1' : 'ethmacwr 1',
     },
 }
-
+g
 
 def parse_cli():
     parser = argparse.ArgumentParser()
@@ -154,7 +154,7 @@ def main():
         for command in commands:
             print(f'>> {command}', end='  ')
             output = write_command_and_read_output(s, command)
-            if validate_command_output(output):
+            if validate_command_output(output, config):
                 print('-> OK')
             else:
                 print('-> Command failed, skipping.')
