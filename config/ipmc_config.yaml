@@ -1,0 +1,11 @@
+##################################################################
+# Configuration to write to IPMC EEPROM, used by configure_ipmc.py
+##################################################################
+board:
+  serial: 207
+  rev: 2
+eeprom:
+  version: 1
+mac:
+  eth0: '00:50:51:FF:00:CF'
+  eth1: '00:50:51:FF:00:CF'
