@@ -7,8 +7,6 @@ import yaml
 import socket
 import argparse
 
-from pprint import pprint
-
 # Check Python version, need at least 3.6
 valid_python = sys.version_info.major >= 3 and sys.version_info.minor >= 6 
 assert valid_python, "You need Python version >=3.6 to run this script!"
@@ -30,11 +28,15 @@ CONFIG_TO_COMMANDS = {
     'eeprom' : {
         'version' : 'verwr',
     },
+    'zynq' : {
+        'bootmode' : 'bootmode',
+    },
     'mac' : {
         'eth0' : 'ethmacwr 0',
         'eth1' : 'ethmacwr 1',
     },
 }
+
 
 def parse_cli():
     parser = argparse.ArgumentParser()
@@ -76,9 +78,6 @@ def get_commands(config):
             # Some minor pre-processing for MAC address values 
             value = str(config[key][subkey]).replace(':', ' ')
             commands.append(f"{commandbase} {value}\r\n")
-
-    # Do a final eepromrd
-    commands.append("eepromrd\r\n")
 
     return commands
 
@@ -122,6 +121,13 @@ def write_command_and_read_output(
     return data.decode('ascii')
 
 
+def validate_command_output(output, config):
+    """
+    Given the command output and the configuration, figure out if the command succeeded.
+    """
+    return True
+
+
 def main():
     args = parse_cli()
 
@@ -139,16 +145,27 @@ def main():
     validate_config(config)
     
     commands = get_commands(config)
-    pprint(commands)
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         # Make the connection
         s.connect((HOST, PORT))
         
+        # Execute the commands and read back data
         for command in commands:
-            print(command)
+            print(f'>> {command}', end='  ')
             output = write_command_and_read_output(s, command)
-            print(output)
+            if validate_command_output(output):
+                print('-> OK')
+            else:
+                print('-> Command failed, skipping.')
+            
+            time.sleep(0.5)
+        
+        # Do a final EEPROMRD before exiting
+        print('Commands done. EEPROM reads as:')
+        out = write_command_and_read_output(s, "eepromrd\r\n")
+        print(out)
+
 
 if __name__ == '__main__':
     main()

@@ -6,6 +6,8 @@ board:
   rev: 2
 eeprom:
   version: 1
+zynq:
+  bootmode: 0
 mac:
   eth0: '00:50:51:FF:00:CF'
   eth1: '00:50:51:FF:10:CF'
