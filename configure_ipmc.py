@@ -14,9 +14,15 @@ assert valid_python, "You need Python version >=3.6 to run this script!"
 # The port for the telnet service on the IPMC
 PORT = 23
 
-# A mapping of Service Module serial numbers to the IPMC numbers
+# A mapping of Service Module serial numbers to the IPMC IP addresses
 SM_TO_IPMC = {
-    'SM207': 32
+    'SM203' : '192.168.21.5',
+    'SM204' : '192.168.22.34',
+    'SM207': '192.168.22.32',
+    'SM208' : '192.168.22.41',
+    'SM209' : '192.168.22.37',
+    'SM211' : '192.168.22.42',
+    'SM212' : '192.168.22.3',
 }
 
 # A mapping of configuration fields -> commands to set them
@@ -139,10 +145,10 @@ def main():
 
     # Check board serial
     if board not in SM_TO_IPMC:
-        raise ValueError(f'Invalid Apollo serial number: {board}')
+        raise ValueError(f'IPMC cannot be found for Apollo: {board}')
 
     # IP address of the IPMC
-    HOST=f"192.168.22.{SM_TO_IPMC[board]}"
+    HOST = SM_TO_IPMC[board]
 
     # Retrieve and validate the configuration
     config = read_config(args.config_path)
@@ -164,7 +170,7 @@ def main():
 
         # Execute the commands and read back data
         for command in commands:
-            print(f'>> {command}', end='  ')
+            print(f'>> {command}', end='   ')
             try:
                 output = write_command_and_read_output(s, command)
             except socket.timeout:
