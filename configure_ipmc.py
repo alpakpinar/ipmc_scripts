@@ -144,7 +144,7 @@ def validate_command_output(output, config):
         "eth1_mac"     : config["mac"]["eth1"],
     }
 
-    print("> Examining EEPROM output")
+    print(">> Examining EEPROM output")
 
     # Extract the value mapping from the eepromrd output
     tokens = output.split('\n')
@@ -207,6 +207,7 @@ def main():
             print(f'>> {command}', end='   ')
             try:
                 output = write_command_and_read_output(s, command)
+                print('-> OK')
             except socket.timeout:
                 print('-> Command timed out, skipping.')
                 continue
