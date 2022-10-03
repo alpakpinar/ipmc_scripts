@@ -135,8 +135,42 @@ def validate_command_output(output, config):
     """
     Given the command output and the configuration, figure out if the command succeeded.
     """
-    return True
+    # Construct an expected "eepromrd" command output
+    expected = {
+        "prom version" : f'0x{config["eeprom"]["version"]:02X}',
+        "bootmode"     : f'0x{config["zynq"]["bootmode"]:02X}',
+        "hw"           : f'rev{config["board"]["rev"]} #{config["board"]["serial"]}',
+        "eth0_mac"     : config["mac"]["eth0"],
+        "eth1_mac"     : config["mac"]["eth1"],
+    }
 
+    print("> Examining EEPROM output")
+
+    # Extract the value mapping from the eepromrd output
+    tokens = output.split('\n')
+    mapping = {}
+
+    for token in tokens:
+        if '=' not in token:
+            continue
+        split_items = token.split('=')
+        if split_items[0].strip() in expected:
+            mapping[split_items[0].strip()] = split_items[-1].strip()
+
+    # Compare the expected and recieved outputs
+    for key in expected.keys():
+        # Expected key not found in output
+        if key not in mapping:
+            print(f"   -> Key not found: {key}")
+            return False
+
+        if mapping[key] != expected[key]:
+            print(f"   -> Key value does not match: {key}")
+            return False
+    
+    # It's all good if we arrived here
+    print(f"   -> OK")
+    return True
 
 def main():
     args = parse_cli()
@@ -177,18 +211,15 @@ def main():
                 print('-> Command timed out, skipping.')
                 continue
             
-            # Validate the command output
-            if validate_command_output(output, config):
-                print('-> OK')
-            else:
-                print('-> Command failed, skipping.')
-            
             time.sleep(0.5)
         
         # Do a final read of the EEPROM before exiting
         print('\nCommands are done. EEPROM reads as:')
         out = write_command_and_read_output(s, "eepromrd\r\n")
         print(out)
+
+        # Validate the command output
+        validate_command_output(output, config)
 
 
 if __name__ == '__main__':
