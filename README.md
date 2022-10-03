@@ -18,6 +18,14 @@ To update the EEPROM memory on the Service Module, one can use the `configure_ip
 
 Note that the `-c` option defaults to `config/ipmc_config.yaml`.
 
+As an example, to set the EEPROM fields on Apollo `SM207`, one can execute the following:
+
+```bash
+# Use the default YAML configuration, ./config/ipmc_config.yaml
+./configure_ipmc.py 207
+```
+**Note:** Please do **not** erase fields from the `ipmc_config.yaml` configuration file. The python script checks that all the fields are there, and an `AssertionError` will be raised if one of the keys cannot be found.
+
 ## Updating IPMC FW
 
 To update the IPMC firmware to a new version, one can use the `update_ipmc_fw.py` file. This script needs a couple of things:

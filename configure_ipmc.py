@@ -43,11 +43,6 @@ CONFIG_TO_COMMANDS = {
     },
 }
 
-# The field names to check to ensure that the command worked
-FIELDS_TO_CHECK = {
-    'idwr' : 'hw',
-}
-
 def parse_cli():
     parser = argparse.ArgumentParser()
     parser.add_argument('board_number', type=int, help='The serial number of the Apollo SM.')
