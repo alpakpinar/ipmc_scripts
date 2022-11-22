@@ -2,6 +2,7 @@
 
 import os
 import sys
+import time
 import socket
 import argparse
 import subprocess
@@ -169,6 +170,9 @@ def main():
         if not update_ipmc_firmware(args.shelf, ipmb, args.upgrade_file):
             continue
         
+        # Wait 1s between update and activate commands
+        time.sleep(1)
+
         if not activate_ipmc_firmware(args.shelf, ipmb):
             continue
 
