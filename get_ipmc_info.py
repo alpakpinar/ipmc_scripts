@@ -2,6 +2,7 @@
 
 import os
 import sys
+import re
 import time
 import socket
 import argparse
@@ -16,10 +17,31 @@ assert valid_python, "You need Python version >=3.6 to run this script!"
 PORT = 23
 
 def parse_cli():
+    """Command line parser."""
     parser = argparse.ArgumentParser()
     parser.add_argument('ipmc_ip_addr', type=str, help='IP address of the IPMC to poll.')
     args = parser.parse_args()
     return args
+
+
+def retrieve_sm_number(stdout):
+    """
+    From IPMC terminal output, retrieve the Apollo SM number for the IPMC.
+    Returns the Apollo SM number as an integer.
+    """
+    sm_number = None
+    # Loop over each line, find the one where the SM number is displayed
+    for line in stdout.split('\n'):
+        if not (line.startswith('hw') and '#' in line):
+            continue
+        
+        tokens = line.split()
+        sm_number = re.findall('#(\d+)', tokens[-1])[0]
+    
+    if not sm_number:
+        raise RuntimeError('Could not retrieve the Apollo SM number.')
+    
+    return int(sm_number)
 
 
 def main():
@@ -36,7 +58,11 @@ def main():
 
         try:
             output = write_command_and_read_output(s, 'eepromrd\r\n')
-            print(output)
+            
+            # Retrieve the Apollo SM number from the output
+            sm_number = retrieve_sm_number(output)
+            print(sm_number)
+
         except socket.timeout:
             print('Command timed out.')
 
