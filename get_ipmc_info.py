@@ -24,9 +24,34 @@ def parse_cli():
     return args
 
 
+def retrieve_fw_version(stdout):
+    """
+    From IPMC terminal output to info command, retrieve the
+    commit hash for the installed FW.
+
+    Returns the commit hash as a string.
+    """
+    commit = None
+    # Loop over each line, find the one where the SM number is displayed
+    for line in stdout.split('\n'):
+        # Strip whitespace from the line
+        line = line.strip()
+        if not line.startswith('Firmware commit:'):
+            continue
+
+        commit = line.split()[-1]
+    
+    if not commit:
+        raise RuntimeError('Could not retrieve FW commit hash.')
+    
+    return commit
+
+
 def retrieve_sm_number(stdout):
     """
-    From IPMC terminal output, retrieve the Apollo SM number for the IPMC.
+    From IPMC terminal output to eepromrd command, retrieve the 
+    Apollo SM number for the IPMC.
+    
     Returns the Apollo SM number as an integer.
     """
     sm_number = None
@@ -58,12 +83,19 @@ def main():
         s.connect((HOST, PORT))
         s.settimeout(timeout)
 
+        # Launch eepromrd and info commands to retrieve:
+        # 1. The serial number of the Apollo SM
+        # 2. The firmware commit hash for the IPMC
         try:
-            output = write_command_and_read_output(s, 'eepromrd\r\n')
-            
-            # Retrieve the Apollo SM number from the output
-            sm_number = retrieve_sm_number(output)
-            print(sm_number)
+            eepromrd_output = write_command_and_read_output(s, 'eepromrd\r\n')
+            sm_number = retrieve_sm_number(eepromrd_output)
+
+            info_output = write_command_and_read_output(s, 'info\r\n')
+            fw_hash = retrieve_fw_version(info_output)
+
+            print(f'IPMC info retrieved from: {HOST}')
+            print(f'-> Apollo SM    : {sm_number}'   )
+            print(f'-> IPMC FW hash : {fw_hash}'     )
 
         except socket.timeout:
             print('Command timed out.')
