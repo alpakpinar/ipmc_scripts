@@ -32,6 +32,8 @@ def retrieve_sm_number(stdout):
     sm_number = None
     # Loop over each line, find the one where the SM number is displayed
     for line in stdout.split('\n'):
+        # Strip whitespace from the line
+        line = line.strip()
         if not (line.startswith('hw') and '#' in line):
             continue
         
