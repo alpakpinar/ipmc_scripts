@@ -35,7 +35,7 @@ def main():
         s.settimeout(timeout)
 
         try:
-            output = write_command_and_read_output(s, 'eepromrd')
+            output = write_command_and_read_output(s, 'eepromrd\r\n')
             print(output)
         except socket.timeout:
             print('Command timed out.')
